@@ -13,24 +13,35 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://ngodingyuk.com'), // Replace with actual domain
+  metadataBase: new URL("https://ngodingyuk.com"), // Replace with actual domain
   title: {
     default: "NgodingYuk - Platform Belajar Coding Interaktif",
-    template: "%s | NgodingYuk"
+    template: "%s | NgodingYuk",
   },
-  description: "Tingkatkan skill coding Anda dengan kurikulum terstruktur, studi kasus dunia nyata, dan mentor ahli. Mulai perjalanan karir IT Anda di sini.",
-  keywords: ["belajar coding", "kursus pemrograman", "html", "javascript", "react", "nextjs", "web development", "ngodingyuk"],
+  description:
+    "Tingkatkan skill coding Anda dengan kurikulum terstruktur, studi kasus dunia nyata, dan mentor ahli. Mulai perjalanan karir IT Anda di sini.",
+  keywords: [
+    "belajar coding",
+    "kursus pemrograman",
+    "html",
+    "javascript",
+    "react",
+    "nextjs",
+    "web development",
+    "ngodingyuk",
+  ],
   authors: [{ name: "NgodingYuk Team" }],
   openGraph: {
     type: "website",
     locale: "id_ID",
     url: "https://ngodingyuk.com",
     title: "NgodingYuk - Platform Belajar Coding Interaktif",
-    description: "Belajar coding lebih mudah dan menyenangkan. Gabung dengan ribuan siswa lainnya.",
+    description:
+      "Belajar coding lebih mudah dan menyenangkan. Gabung dengan ribuan siswa lainnya.",
     siteName: "NgodingYuk",
     images: [
       {
-        url: "/og-image.jpg", // Ensure this image exists in public folder or remove if not
+        url: "/assets/logo/logo.png", // Ensure this image exists in public folder or remove if not
         width: 1200,
         height: 630,
         alt: "NgodingYuk Preview",
@@ -41,7 +52,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "NgodingYuk - Platform Belajar Coding Interaktif",
     description: "Belajar coding lebih mudah dan menyenangkan.",
-    images: ["/og-image.jpg"],
+    images: ["/assets/logo/logo.png"],
   },
   robots: {
     index: true,
@@ -57,14 +68,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-      <html lang="id" className="scroll-smooth">
-        <body
-          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-        >
-          <AuthProvider>
-            {children}
-          </AuthProvider>
-        </body>
-      </html>
+    <html lang="id" className="scroll-smooth">
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+      >
+        <AuthProvider>{children}</AuthProvider>
+      </body>
+    </html>
   );
 }

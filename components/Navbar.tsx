@@ -66,6 +66,19 @@ export default function Navbar(): React.ReactElement {
             </Link>
           );
         })}
+        {!user && (
+          <Link
+            href="/login"
+            className="relative flex flex-col items-center group"
+          >
+            <motion.div
+              className="p-2 rounded-xl transition-all text-gray-500 hover:bg-gray-50"
+              whileTap={{ scale: 0.9 }}
+            >
+              <User className="w-6 h-6" />
+            </motion.div>
+          </Link>
+        )}
         {user && (
           <button
             onClick={logout}
