@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import {
   useAnimationFrame,
@@ -8,14 +8,14 @@ import {
   useTransform,
   useVelocity,
   motion,
-} from "framer-motion"
-import { useRef } from "react"
-import { wrap } from "@motionone/utils"
+} from "framer-motion";
+import { useRef } from "react";
+import { wrap } from "@motionone/utils";
 
 interface ParallaxTextProps {
-  children: string
-  baseVelocity: number
-  direction: number
+  children: string;
+  baseVelocity: number;
+  direction: number;
 }
 
 export default function ParallaxText({
@@ -23,44 +23,44 @@ export default function ParallaxText({
   baseVelocity = 100,
   direction,
 }: ParallaxTextProps) {
-  const baseX = useMotionValue(0)
-  const { scrollY } = useScroll()
-  const scrollVelocity = useVelocity(scrollY)
+  const baseX = useMotionValue(0);
+  const { scrollY } = useScroll();
+  const scrollVelocity = useVelocity(scrollY);
   const smoothVelocity = useSpring(scrollVelocity, {
     damping: 50,
     stiffness: 300,
-  })
+  });
   const skewVelocity = useSpring(scrollVelocity, {
     stiffness: 100,
     damping: 30,
-  })
+  });
 
   const skewVelocityFactor = useTransform(
     skewVelocity,
     [-1000, 1000],
     [-30, 30]
-  )
+  );
   const velocityFactor = useTransform(smoothVelocity, [0, 1000], [0, 5], {
     clamp: false,
-  })
+  });
 
-  const x = useTransform(baseX, (v) => `${wrap(-20, -45, v)}%`)
+  const x = useTransform(baseX, (v) => `${wrap(-20, -45, v)}%`);
 
-  const directionFactor = useRef<number>(1)
+  const directionFactor = useRef<number>(1);
 
   useAnimationFrame((t, delta) => {
-    let moveBy = directionFactor.current * baseVelocity * (delta / 1000)
+    let moveBy = directionFactor.current * baseVelocity * (delta / 1000);
 
     if (velocityFactor.get() < 0) {
-      directionFactor.current = -1
+      directionFactor.current = -1;
     } else if (velocityFactor.get() > 0) {
-      directionFactor.current = 1
+      directionFactor.current = 1;
     }
 
-    moveBy += directionFactor.current * moveBy * velocityFactor.get()
+    moveBy += directionFactor.current * moveBy * velocityFactor.get();
 
-    baseX.set(baseX.get() + moveBy)
-  })
+    baseX.set(baseX.get() + moveBy);
+  });
 
   return (
     <motion.div
@@ -71,7 +71,7 @@ export default function ParallaxText({
         transition: {
           delay: 2,
           duration: 1,
-          easings: "eas",
+          ease: "easeInOut",
         },
       }}
       className="m-0 flex flex-nowrap overflow-hidden whitespace-nowrap leading-[0.8] tracking-[-2px]"
@@ -106,5 +106,5 @@ export default function ParallaxText({
         </motion.span>
       </motion.div>
     </motion.div>
-  )
+  );
 }
