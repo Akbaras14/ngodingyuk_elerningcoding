@@ -1,0 +1,5 @@
+{
+    "emulator.emulatorPathWindows": "C:\\Users\\drago\\AppData\\Local\\Android\\Sdk\\emulator",
+    "emulator.emulatorPath": "C:\\Users\\drago\\AppData\\Local\\Android\\Sdk\\emulator",
+    "emulator.androidColdBoot": true
+}
