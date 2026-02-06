@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useState, useEffect, use } from "react";
+import React, { useState, useEffect, use, useRef, useCallback } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import Barcode from "react-barcode";
 import Logo from "@/components/splashscreen/Logo";
+import { toPng } from "html-to-image";
 
 export default function CertificatePage({
   params: paramsPromise,
@@ -14,10 +15,11 @@ export default function CertificatePage({
 }) {
   const params = use(paramsPromise);
   const courseId = params.courseId;
+  const courseName = courseId.charAt(0).toUpperCase() + courseId.slice(1);
 
+  const certificateRef = useRef<HTMLDivElement>(null);
   const { user } = useAuth();
   const router = useRouter();
-  const courseName = courseId.charAt(0).toUpperCase() + courseId.slice(1);
 
   const [issuedDate, setIssuedDate] = useState("");
   const [certificateId, setCertificateId] = useState("");
@@ -30,162 +32,152 @@ export default function CertificatePage({
         day: "numeric",
       })
     );
+
     setCertificateId(
       `NY-${courseId.toUpperCase()}-${Math.floor(Math.random() * 100000000)}`
     );
   }, [courseId]);
 
+  const handleDownload = useCallback(() => {
+    const node = certificateRef.current;
+    if (!node) return;
+
+    toPng(node, {
+      cacheBust: true,
+      pixelRatio: 2,
+    })
+      .then((dataUrl) => {
+        const link = document.createElement("a");
+        link.download = `sertifikat-${courseName}.png`;
+        link.href = dataUrl;
+        link.click();
+      })
+      .catch(console.error);
+  }, [courseName]);
+
   return (
-    <div className="flex flex-col items-center min-h-screen bg-gradient-to-br from-slate-100 to-slate-200 dark:from-gray-950 dark:to-gray-900 py-4 px-3">
-      {/* Buttons */}
-      <div className="w-full max-w-4xl flex flex-col sm:flex-row gap-2 justify-between mb-3 print:hidden">
-        <Button
-          variant="outline"
-          onClick={() => router.push("/home")}
-          className="w-full sm:w-auto text-sm"
-        >
+    <div className="min-h-screen bg-slate-100 flex flex-col items-center py-6 px-3">
+      {/* BUTTONS */}
+      <div className="w-full max-w-6xl flex flex-col sm:flex-row justify-between gap-2 mb-4 print:hidden">
+        <Button variant="outline" onClick={() => router.push("/home")}>
           Kembali
         </Button>
-        <Button
-          onClick={() => window.print()}
-          className="w-full sm:w-auto text-sm bg-blue-600 text-white"
-        >
-          Cetak
-        </Button>
+
+        <div className="flex gap-2">
+          <Button
+            onClick={handleDownload}
+            className="bg-green-600 hover:bg-green-700 text-white"
+          >
+            Download PNG
+          </Button>
+          <Button
+            onClick={() => window.print()}
+            className="bg-blue-600 hover:bg-blue-700 text-white"
+          >
+            Cetak
+          </Button>
+        </div>
       </div>
 
-      {/* === MOBILE SCALE WRAPPER === */}
-      <div className="w-full flex justify-center sm:block">
-        <div className="scale-[0.82] sm:scale-102 origin-top print:scale-100">
-          {/* Certificate */}
+      {/* PREVIEW SCALE (AMAN) */}
+      <div className="overflow-x-auto w-full flex justify-center">
+        <div className="scale-[0.8] sm:scale-100 origin-top">
+          {/* CERTIFICATE FIX SIZE */}
           <div
+            ref={certificateRef}
             className="
               relative
-              w-full
-              max-w-[320px]
-              sm:max-w-2xl
-              lg:max-w-5xl
-
-              bg-gradient-to-br from-white to-blue-50 dark:from-gray-800 dark:to-gray-700
-              rounded-lg
+              w-[1123px] h-[794px]
+              bg-gradient-to-br from-white to-blue-50
+              border-[10px] border-double border-blue-500
+              rounded-xl
               shadow-2xl
-
-              m-4.5
-              sm:p-10
-              
-
-              border-4
-              sm:border-8
-              lg:border-12
-              border-double
-              border-blue-500
-              dark:border-blue-400
-
-              text-center
-              overflow-hidden
-
               font-serif
-              sm:aspect-297/210
+              overflow-hidden
+              text-center
             "
           >
-            {/* Watermark */}
+            {/* WATERMARK */}
             <div
-              className="absolute inset-0 opacity-5 dark:opacity-4 pointer-events-none"
+              className="absolute inset-0 opacity-5 pointer-events-none"
               style={{
                 backgroundImage: "url('/assets/logo/logo.png')",
-                backgroundSize: "60px",
+                backgroundSize: "80px",
                 backgroundRepeat: "repeat",
-                backgroundPosition: "center",
               }}
             />
 
-            <div className="relative z-10 flex flex-col h-full">
-              {/* Header */}
-              <div className="mb-4 flex flex-col items-center">
-                <div className="mb-1">
-                  <Logo size={150} />
-                </div>
-
-                <h1 className="text-xl sm:text-4xl lg:text-5xl font-bold text-blue-700 dark:text-blue-400 border-b-2 sm:border-b-4 border-blue-400 tracking-wide">
+            <div className="relative z-10 flex flex-col h-full px-16 py-12">
+              {/* HEADER */}
+              <div className="mb-6">
+                <Logo size={140} />
+                <h1 className="text-5xl font-bold text-blue-700 mt-4 border-b-4 border-blue-400 inline-block px-6">
                   SERTIFIKAT PENYELESAIAN
                 </h1>
-                <p className=" text-xs sm:text-lg italic text-gray-600 dark:text-gray-400">
+                <p className="italic text-gray-600 mt-2">
                   Diberikan kepada peserta yang telah menyelesaikan pembelajaran
-                  dengan baik
                 </p>
               </div>
 
-              {/* Name and Course */}
-              <div className="flex-grow flex flex-col justify-center my-2">
-                <p className="text-xs sm:text-lg mb-1 text-gray-700 dark:text-gray-300">
+              {/* CONTENT */}
+              <div className="flex-grow flex flex-col justify-center">
+                <p className="text-lg text-gray-700 mb-2">
                   Dengan bangga diberikan kepada
                 </p>
-                <p className="text-xl sm:text-4xl lg:text-5xl font-extrabold text-blue-800 dark:text-blue-300 border-b-2 border-blue-300 pb-2 leading-tight tracking-wide">
-                  {user?.name ?? "Nama Siswa"}
+
+                <p className="text-5xl font-extrabold text-blue-800 border-b-2 border-blue-300 pb-2 mx-auto">
+                  {user?.name ?? "Nama Peserta"}
                 </p>
-                <p className="mt-2 text-xs sm:text-lg italic text-gray-600 dark:text-gray-400">
+
+                <p className="italic text-gray-600 mt-3">
                   atas keberhasilannya menyelesaikan pembelajaran
                 </p>
-                <p className="mt-2 text-lg sm:text-5xl lg:text-6xl font-bold text-blue-700 dark:text-blue-400 border-t-2 border-blue-300 pt-2 leading-tight tracking-wide">
+
+                <p className="text-6xl font-bold text-blue-700 mt-4 border-t-2 border-blue-300 pt-2">
                   “{courseName}”
                 </p>
               </div>
 
-              {/* Footer */}
-              <div className="mt-4 flex justify-between items-end">
-                <div className="flex flex-col items-center">
-                  <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mb-1">
-                    Dikeluarkan pada
-                  </p>
-                  <p className="text-sm sm:text-xl font-semibold text-gray-800 dark:text-gray-200">
-                    {issuedDate}
-                  </p>
+              {/* FOOTER */}
+              <div className="flex justify-between items-end mt-6">
+                <div>
+                  <p className="text-sm text-gray-500">Dikeluarkan pada</p>
+                  <p className="text-lg font-semibold">{issuedDate}</p>
                 </div>
 
-                <div className="flex flex-col items-center">
-                  <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
-                    Dikeluarkan Oleh
-                  </p>
-                  <p className="text-sm sm:text-lg font-semibold text-gray-800 dark:text-gray-200">
-                    NgodingYuk Team
-                  </p>
-                  <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
-                    developer ngodingyuk
-                  </p>
+                <div className="text-center">
+                  <p className="text-sm text-gray-500">Dikeluarkan oleh</p>
+                  <p className="font-semibold">NgodingYuk Team</p>
+                  <p className="text-sm text-gray-500">Developer Education</p>
                 </div>
 
-                <div className="flex flex-col items-center">
+                <div className="text-center">
                   <img
-                    src="/assets/seal.png" // Placeholder untuk segel; ganti dengan gambar asli
+                    src="/assets/seal.png"
                     alt="Seal"
-                    className="w-16 h-16 sm:w-24 sm:h-24 opacity-70 mb-1"
+                    className="w-24 h-24 mx-auto opacity-80"
                   />
-                  <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
-                    Segel Resmi
-                  </p>
+                  <p className="text-sm text-gray-500">Segel Resmi</p>
                 </div>
               </div>
 
-              {/* Barcode */}
-              <div className="absolute bottom-1 right-30 text-right">
-                <p className="text-xs sm:text-sm mb-1 text-gray-500 dark:text-gray-400">
+              {/* BARCODE */}
+              <div className="absolute bottom-6 right-8 text-right">
+                <p className="text-sm text-gray-500 mb-1">
                   ID: {certificateId}
                 </p>
-                {certificateId && (
-                  <Barcode
-                    value={certificateId}
-                    width={1}
-                    height={20}
-                    displayValue={false}
-                    background="transparent"
-                  />
-                )}
+                <Barcode
+                  value={certificateId}
+                  width={1}
+                  height={30}
+                  displayValue={false}
+                  background="transparent"
+                />
               </div>
             </div>
           </div>
         </div>
       </div>
-      {/* === END MOBILE SCALE === */}
     </div>
   );
 }
